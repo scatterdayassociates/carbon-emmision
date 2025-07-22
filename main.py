@@ -10,6 +10,7 @@ import re
 import json
 import pandas as pd
 from geopy.distance import geodesic
+from rapidfuzz import process, fuzz
 warnings.filterwarnings('ignore')
 
 # Page configuration
@@ -264,30 +265,38 @@ def format_pluto_value(value, field_type):
     except:
         return str(value)
 
+@st.cache_data
+def fetch_pluto_data(address=None, latitude=None, longitude=None, csv_path="Primary_Land_Use_Tax_Lot_Output__PLUTO__20250723.csv"):
+    # Load CSV once
+    df = pd.read_csv(csv_path)
 
-def fetch_pluto_data( longitude=None, latitude=None, json_path="nyc_pluto_metadata.json"):
-    with open(json_path, 'r') as f:
-        data = json.load(f)
+    if address is not None:
+        # Step 1: Fuzzy match on address
+        matches = process.extract(address, df['address'], scorer=fuzz.token_sort_ratio, limit=20)
+        matched_addresses = [match[0] for match in matches]
 
-    df = pd.DataFrame(data)
+        df_filtered = df[df['address'].isin(matched_addresses)]
 
-    # If lat/lon are provided, use fuzzy geodesic matching
-    if latitude is not None and longitude is not None:
-        def compute_distance(row):
-            try:
-                return geodesic((latitude, longitude), (float(row['latitude']), float(row['longitude']))).meters
-            except:
-                return float('inf')
+        if latitude is not None and longitude is not None and not df_filtered.empty:
+            # Step 2: Geodesic distance on filtered set
+            def compute_distance(row):
+                try:
+                    return geodesic(
+                        (latitude, longitude),
+                        (float(row['latitude']), float(row['longitude']))
+                    ).meters
+                except:
+                    return float('inf')
 
-        df['distance'] = df.apply(compute_distance, axis=1)
-        closest = df.sort_values(by='distance').iloc[0]
-      
-        # Optional: filter out if distance is too large (> 100 meters)
-        # if closest['distance'] < 100
-        print(closest)
-        return closest.to_dict()
-        # else:
-        #     return None
+            df_filtered['distance'] = df_filtered.apply(compute_distance, axis=1)
+            closest = df_filtered.sort_values(by='distance').iloc[0]
+            print(closest)
+            return closest.drop(labels='distance', errors='ignore').to_dict()
+        
+        elif not df_filtered.empty:
+            # No lat/lon, just return first fuzzy match
+            return df_filtered.iloc[0].to_dict()
+    
     return None
 
 def engineer_features(df):
@@ -728,7 +737,7 @@ def main():
         with st.spinner('🔍 Fetching building data from NYC PLUTO database...'):
             print(longitude)
             print(latitude)
-            pluto_data = fetch_pluto_data(longitude=longitude, latitude=latitude)
+            pluto_data = fetch_pluto_data(address=address, longitude=longitude, latitude=latitude)
             if pluto_data is not None:
             
                 display_pluto_section_alternative(pluto_data)
