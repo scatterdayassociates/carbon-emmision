@@ -264,6 +264,7 @@ def format_pluto_value(value, field_type):
     except:
         return str(value)
 
+
 def fetch_pluto_data( longitude=None, latitude=None, json_path="nyc_pluto_metadata.json"):
     with open(json_path, 'r') as f:
         data = json.load(f)
@@ -280,13 +281,15 @@ def fetch_pluto_data( longitude=None, latitude=None, json_path="nyc_pluto_metada
 
         df['distance'] = df.apply(compute_distance, axis=1)
         closest = df.sort_values(by='distance').iloc[0]
-        print(f"Closest match found at distance: {closest['distance']} meters")
-        print(closest.to_dict())
-        print(closest['latitude'], closest['longitude'])
+      
+        # Optional: filter out if distance is too large (> 100 meters)
+        # if closest['distance'] < 100
+        print(closest)
         return closest.to_dict()
-     
+        # else:
+        #     return None
     return None
- 
+
 def engineer_features(df):
     """Create the same engineered features used during training"""
     df = df.copy()
