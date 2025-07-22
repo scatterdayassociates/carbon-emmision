@@ -7,6 +7,9 @@ import warnings
 import streamlit.components.v1 as components
 import folium
 import re
+import json
+import pandas as pd
+from geopy.distance import geodesic
 warnings.filterwarnings('ignore')
 
 # Page configuration
@@ -261,28 +264,29 @@ def format_pluto_value(value, field_type):
     except:
         return str(value)
 
+def fetch_pluto_data( longitude=None, latitude=None, json_path="nyc_pluto_metadata.json"):
+    with open(json_path, 'r') as f:
+        data = json.load(f)
 
-@st.cache_data
-def fetch_pluto_data(address):
-    """Fetch PLUTO metadata for a given NYC address"""
-    base_url = "https://data.cityofnewyork.us/resource/64uk-42ks.json"
-    query = f"?address={address.replace(' ', '%20')}"
-    
-    try:
-        response = requests.get(base_url + query)
-        response.raise_for_status()
-        data = response.json()
+    df = pd.DataFrame(data)
 
-        if not data:
-            return None
+    # If lat/lon are provided, use fuzzy geodesic matching
+    if latitude is not None and longitude is not None:
+        def compute_distance(row):
+            try:
+                return geodesic((latitude, longitude), (float(row['latitude']), float(row['longitude']))).meters
+            except:
+                return float('inf')
 
-        df = pd.DataFrame(data)
-        return df.iloc[0] if len(df) > 0 else None
-
-    except Exception as e:
-        st.error(f"❌ Error fetching PLUTO data: {e}")
-        return None
-    
+        df['distance'] = df.apply(compute_distance, axis=1)
+        closest = df.sort_values(by='distance').iloc[0]
+        print(f"Closest match found at distance: {closest['distance']} meters")
+        print(closest.to_dict())
+        print(closest['latitude'], closest['longitude'])
+        return closest.to_dict()
+     
+    return None
+ 
 def engineer_features(df):
     """Create the same engineered features used during training"""
     df = df.copy()
@@ -719,8 +723,9 @@ def main():
             components.html(synced_maps_html, height=400)
     
         with st.spinner('🔍 Fetching building data from NYC PLUTO database...'):
-            cleaned = re.sub(r'(\d+)(st|nd|rd|th)\b', r'\1', query_address, flags=re.IGNORECASE)
-            pluto_data = fetch_pluto_data(cleaned)
+            print(longitude)
+            print(latitude)
+            pluto_data = fetch_pluto_data(longitude=longitude, latitude=latitude)
             if pluto_data is not None:
             
                 display_pluto_section_alternative(pluto_data)
