@@ -456,14 +456,7 @@ def main():
         step=1000
     )
     
-    # Add slider for building area
-    building_area = st.sidebar.slider(
-        "", 
-        min_value=1, 
-        max_value=1000000, 
-        value=building_area,
-        step=1000
-    )
+    
     
     primary_property_type = st.sidebar.selectbox(
     "Primary Property Type", 
