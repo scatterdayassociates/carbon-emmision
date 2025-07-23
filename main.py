@@ -10,6 +10,7 @@ import re
 import json
 import pandas as pd
 from geopy.distance import geodesic
+from rapidfuzz import process, fuzz
 warnings.filterwarnings('ignore')
 
 # Page configuration
@@ -36,8 +37,10 @@ def create_synced_map_streetview(latitude, longitude, api_key, address=""):
             }}
             .container {{
                 display: flex;
-                gap: 0;
+                gap: 25px;
                 height: 400px;
+                padding: 0 12.5px;
+                box-sizing: border-box;
             }}
             .map-panel {{
                 flex: 1;
@@ -105,6 +108,7 @@ def create_synced_map_streetview(latitude, longitude, api_key, address=""):
     </html>
     """
     return html_content
+
 def get_coordinates(address, api_key):
     """
     Get latitude and longitude from address using Google Geocoding API
@@ -129,41 +133,131 @@ def get_coordinates(address, api_key):
         return None, None
     
 # Custom CSS for styling
+# Updated CSS styles
+# Updated CSS styles
 st.markdown("""
 <style>
     .metric-card {
-        background: #4A5568;
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
+        border: 2px dashed #999;
+        border-radius: 12px;
+        padding: 10px;
         text-align: center;
-        margin: 10px;
+        margin: 5px;
+    }
+    .metric-card-with-tooltip {
+        border: 2px dashed #999;
+        border-radius: 12px;
+        padding: 10px;
+        text-align: center;
+        margin: 5px;
+        position: relative;
     }
     .metric-title {
         font-size: 14px;
-        font-weight: bold;
+        color: #666;
         margin-bottom: 10px;
+        text-align: center;
+        position: relative;
     }
     .metric-value {
-        font-size: 36px;
+        font-size: 34px;
         font-weight: bold;
-        margin-bottom: 5px;
+        margin: 10px 0;
     }
     .metric-unit {
         font-size: 12px;
         opacity: 0.8;
     }
+    .tooltip-container {
+        position: relative;
+        display: inline-block;
+    }
+    .tooltip-icon {
+        font-size: 12px;
+        margin-left: 5px;
+        opacity: 0.7;
+        cursor: help;
+    }
+    .tooltip-text {
+        visibility: hidden;
+        width: 250px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -125px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 11px;
+        line-height: 1.3;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+    }
+    .tooltip-container:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+    .delta-overlay {
+        position: absolute;
+        top: 50%;
+        right: -1px;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .delta-item {
+        display: flex;
+        align-items: baseline;
+        gap: 3px;
+        font-size: 10px;
+        white-space: nowrap;
+    }
+    .delta-label {
+        font-size: 10px;
+        font-weight: bold;
+        color: #555;
+    }
+    .delta-value {
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .delta-unit {
+        font-size: 9px;
+        color: #777;
+        opacity: 0.9;
+    }
     .accuracy-card {
-        background: #4A5568;
-        color: white;
-        padding: 15px;
-        border-radius: 10px;
+        border: 2px dashed #999;
+        border-radius: 12px;
+        padding: 10px;
         text-align: center;
         margin: 5px;
     }
     .accuracy-value {
-        font-size: 24px;
+        font-size: 34px;
         font-weight: bold;
+        margin: 10px 0;
     }
     .accuracy-label {
         font-size: 10px;
@@ -208,6 +302,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
 def display_pluto_section_alternative(pluto_data):
     """Alternative approach for displaying PLUTO data"""
     
@@ -221,7 +316,7 @@ def display_pluto_section_alternative(pluto_data):
     ]
     
     right_column_fields = [
-        ("yearbuilt", "Years Built", "number"),
+        ("yearbuilt", "Years Built", "text"),
         ("bldgclass", "Building Class", "text"),
         ("landuse", "Land Use", "text"),
         ("builtfar", "Built Floor Area Ratio", "decimal"),
@@ -265,29 +360,37 @@ def format_pluto_value(value, field_type):
         return str(value)
 
 
-def fetch_pluto_data( longitude=None, latitude=None, json_path="nyc_pluto_metadata.json"):
-    with open(json_path, 'r') as f:
-        data = json.load(f)
+def fetch_pluto_data(address=None, latitude=None, longitude=None, csv_path="needata.csv"):
+    # Load CSV once
+    df = pd.read_csv(csv_path)
 
-    df = pd.DataFrame(data)
+    if address is not None:
+        # Step 1: Fuzzy match on address
+        matches = process.extract(address, df['address'], scorer=fuzz.token_sort_ratio, limit=20)
+        matched_addresses = [match[0] for match in matches]
 
-    # If lat/lon are provided, use fuzzy geodesic matching
-    if latitude is not None and longitude is not None:
-        def compute_distance(row):
-            try:
-                return geodesic((latitude, longitude), (float(row['latitude']), float(row['longitude']))).meters
-            except:
-                return float('inf')
+        df_filtered = df[df['address'].isin(matched_addresses)]
 
-        df['distance'] = df.apply(compute_distance, axis=1)
-        closest = df.sort_values(by='distance').iloc[0]
-      
-        # Optional: filter out if distance is too large (> 100 meters)
-        # if closest['distance'] < 100
-        print(closest)
-        return closest.to_dict()
-        # else:
-        #     return None
+        if latitude is not None and longitude is not None and not df_filtered.empty:
+            # Step 2: Geodesic distance on filtered set
+            def compute_distance(row):
+                try:
+                    return geodesic(
+                        (latitude, longitude),
+                        (float(row['latitude']), float(row['longitude']))
+                    ).meters
+                except:
+                    return float('inf')
+
+            df_filtered['distance'] = df_filtered.apply(compute_distance, axis=1)
+            closest = df_filtered.sort_values(by='distance').iloc[0]
+            print(closest)
+            return closest.drop(labels='distance', errors='ignore').to_dict()
+        
+        elif not df_filtered.empty:
+            # No lat/lon, just return first fuzzy match
+            return df_filtered.iloc[0].to_dict()
+    
     return None
 
 def engineer_features(df):
@@ -407,6 +510,55 @@ def display_metric_card(title, value, unit="", col_width=1):
     </div>
     """
 
+
+def display_metric_card_national(title, value, unit="", property_type="", absolute_delta=0, percent_delta=0, col_width=1):
+    """Display a metric card with tooltip and delta values"""
+    tooltip_text = f"National median Site EUI for {property_type} buildings – Portfolio Manager (CBECS 2018)."
+    
+    # Format the value properly
+    if isinstance(value, (int, float)) and value != "N/A":
+        formatted_value = f"{value:,.0f}"
+        show_delta = True
+    else:
+        formatted_value = str(value)
+        show_delta = False
+    
+    # Format delta values only if we have a numeric value
+    if show_delta:
+        delta_sign = "+" if absolute_delta >= 0 else ""
+        delta_color = "#ff4444" if absolute_delta > 0 else "#44aa44" if absolute_delta < 0 else "#666"
+        delta_html = f'''<div class="delta-overlay">
+            <div class="delta-item">
+                <span class="delta-label">Δ</span>
+                <span class="delta-value" style="color: {delta_color};">{delta_sign}{absolute_delta:.1f}</span>
+                <span class="delta-unit">{unit}</span>
+            </div>
+            <div class="delta-item">
+                <span class="delta-label">Δ%</span>
+                <span class="delta-value" style="color: {delta_color};">{delta_sign}{percent_delta:.1f}%</span>
+            </div>
+        </div>'''
+    else:
+        delta_html = ""
+    
+    return f"""
+    <div class="metric-card-with-tooltip">
+        <div class="metric-title">
+            {title} 
+            <span class="tooltip-container">
+                <span class="tooltip-icon">ℹ️</span>
+                <span class="tooltip-text">{tooltip_text}</span>
+            </span>
+        </div>
+        <div class="metric-content">
+            <div class="metric-value">{formatted_value}</div>
+            <div class="metric-unit">{unit}</div>
+            {delta_html}
+        </div>
+    </div>
+    """
+
+
 def display_accuracy_card(title, value, unit=""):
     """Display an accuracy metric card"""
     return f"""
@@ -434,27 +586,92 @@ def main():
         "Retail Store", "Self-Storage Facility", "Supermarket/Grocery Store", 
         "Transportation Terminal/Station", "Worship Facility"
     ]
+    # Function to load median data
+    def load_median_data(median_file_path='median.json'):
+        """Load median reference data from JSON file"""
+        try:
+            import json
+            with open(median_file_path, 'r') as f:
+                median_data = json.load(f)
+            return median_data
+        except Exception as e:
+            st.error(f"Error loading median data: {e}")
+            return None
+
+# Function to map property type to portfolio manager function
+    def map_property_type_to_portfolio_function(property_type):
+        """Map primary property type to portfolio manager primary function"""
+        # Create mapping dictionary (you may need to adjust these mappings based on your data)
+        property_mapping = {
+            "Bank Branch": "bank branch",
+            "Distribution Center": "distribution center",
+            "Enclosed Mall": "enclosed mall",
+            "Hospital (General Medical & Surgical)": "hospital",
+            "Hotel": "hotel",
+            "K-12 School": "k-12 school",
+            "Laboratory": "laboratory",
+            "Manufacturing/Industrial Plant": "manufacturing/industrial plant",
+            "Medical Office": "medical office",
+            "Mixed Use Property": "mixed use property",
+            "Multifamily Housing": "multifamily housing",
+            "Non-Refrigerated Warehouse": "non-refrigerated warehouse",
+            "Office": "office",
+            "Other - Lodging/Residential": "other - lodging/residential",
+            "Outpatient Rehabilitation/Physical Therapy": "outpatient rehabilitation/physical therapy",
+            "Parking": "parking",
+            "Performing Arts": "performing arts",
+            "Refrigerated Warehouse": "refrigerated warehouse",
+            "Repair Services (Vehicle, Shoe, Locksmith, etc.)": "repair services",
+            "Residence Hall/Dormitory": "residence hall/dormitory",
+            "Residential Care Facility": "residential care facility",
+            "Retail Store": "retail store",
+            "Self-Storage Facility": "self-storage facility",
+            "Supermarket/Grocery Store": "supermarket/grocery store",
+            "Transportation Terminal/Station": "transportation terminal/station",
+            "Worship Facility": "worship facility"
+        }
+        
+        return property_mapping.get(property_type, property_type.lower())
     
+    def get_median_value_for_property_type(median_data, property_type):
+        """Get median site EUI value for a specific property type"""
+        if not median_data:
+            return None
+        
+        # Map the property type to portfolio function
+        portfolio_function = map_property_type_to_portfolio_function(property_type)
+        
+        # Search through median_data (assuming it's a list of dictionaries or a single dictionary)
+        if isinstance(median_data, list):
+            for entry in median_data:
+                if entry.get('portfolio_manager_primary_function', '').lower() == portfolio_function.lower():
+                    return entry.get('site_eui_kbtu_ft2')
+        elif isinstance(median_data, dict):
+            if median_data.get('portfolio_manager_primary_function', '').lower() == portfolio_function.lower():
+                return median_data.get('site_eui_kbtu_ft2')
+        
+        # If no match found, return None or a default value
+        return None
     # Borough options with emojis
     borough_options = {
-        "Bronx": "🏙️ Bronx",
-        "Brooklyn": "🌉 Brooklyn", 
-        "Manhattan": "🏢 Manhattan",
-        "Queens": "🏘️ Queens",
-        "Staten Island": "🌳 Staten Island"
+        "Bronx": "Bronx",
+        "Brooklyn": "Brooklyn", 
+        "Manhattan": "Manhattan",
+        "Queens": "Queens",
+        "Staten Island": "Staten Island"
     }
     
     # Sidebar inputs
     st.sidebar.title("Building Parameters")
 
-    st.sidebar.subheader("🏠 Address")
+    st.sidebar.subheader("Address")
     address = st.sidebar.text_input(
     "Enter Building Address",
     placeholder="123 Main Street, City, Country"
     )
     
     # Building section
-    st.sidebar.subheader("🏢 Building")
+    st.sidebar.subheader("Building")
     building_area = st.sidebar.number_input(
         "Building Gross Floor Area (ft²)", 
         min_value=1, 
@@ -480,7 +697,7 @@ def main():
     )
     
     # Operations section
-    st.sidebar.subheader("⚙️ Operations")
+    st.sidebar.subheader("Operations")
     occupancy_percent = st.sidebar.slider(
         "Occupancy (%)", 
         min_value=0.0, 
@@ -498,7 +715,7 @@ def main():
     )
     
     # Loads section
-    st.sidebar.subheader("⚡ Loads")
+    st.sidebar.subheader("Loads")
     electricity_use = st.sidebar.number_input(
         "Electricity Use (kBtu)", 
         min_value=0, 
@@ -518,7 +735,7 @@ def main():
     )
     
     # Environment section
-    st.sidebar.subheader("🌍 Environment")
+    st.sidebar.subheader("Environment")
     weather_normalized_eui = st.sidebar.number_input(
         "Weather-Normalized Site EUI (kBtu/ft²)", 
         min_value=1.0, 
@@ -529,7 +746,7 @@ def main():
     )
     
     # Context section
-    st.sidebar.subheader("📍 Context")
+    st.sidebar.subheader("Context")
     selected_borough = st.sidebar.selectbox(
         "Borough", 
         list(borough_options.keys()),
@@ -546,7 +763,7 @@ def main():
     # Predict button
     st.sidebar.markdown("---")
     predict_button = st.sidebar.button(
-        "🔮 Predict Property Emission", 
+        "Predict Property Emission", 
         type="primary",
         use_container_width=True
     )
@@ -567,10 +784,10 @@ def main():
     
     # Only make prediction when button is clicked
     if predict_button:
-        with st.spinner('🔄 Analyzing building data and predicting emissions...'):
+        with st.spinner('Analyzing building data and predicting emissions...'):
             # Load model and make prediction
             model_data = load_model('nyc_building_predictor.pkl')
-            
+            median_data = load_median_data('median.json')
             if model_data is not None:
                 prediction = make_prediction(model_data, building_data)
             else:
@@ -578,17 +795,18 @@ def main():
         
         if prediction:
             # Display main prediction cards using actual model predictions
+            median_site_eui = get_median_value_for_property_type(median_data, primary_property_type)
             col1, col2 = st.columns(2)
             
             with col1:
                 # Site Energy Use - try to get from prediction first
                 site_energy_key = next((k for k in prediction.keys() if 'site' in k.lower() and 'energy' in k.lower()), None)
                 if site_energy_key:
-                    site_energy_value = prediction[site_energy_key]
+                    site_energy_value = prediction[site_energy_key]/building_area
                 else:
                     # Fallback to calculated value if not in prediction
                     site_energy_value = (building_data['electricity_use_kbtu'] + building_data['natural_gas_use_kbtu']) / 1000
-                st.markdown(display_metric_card("Site Energy Use", site_energy_value, "kBtu"), unsafe_allow_html=True)
+                st.markdown(display_metric_card("Site Energy Use", site_energy_value, "kBtu/ft²"), unsafe_allow_html=True)
             
             with col2:
                 # Energy Star Score - get from prediction
@@ -613,14 +831,30 @@ def main():
                 st.markdown(display_metric_card("Net Emissions", emissions_value, "Metric Tons CO₂"), unsafe_allow_html=True)
             
             with col4:
-                # National Median - check if this is in your model predictions
-                median_key = next((k for k in prediction.keys() if 'median' in k.lower() or 'national' in k.lower()), None)
-                if median_key:
-                    national_median = prediction[median_key]
+                # National Median - use median data from JSON
+                if median_site_eui is not None:
+                    national_median = median_site_eui
+                    unit_text = "kBtu/ft²"
+                    
+                    # Calculate delta values
+                    # Get predicted site EUI (assuming it's normalized by floor area)
+                    predicted_site_eui = site_energy_value / building_data.get('gross_floor_area', 1) if building_data.get('gross_floor_area', 0) > 0 else site_energy_value
+                    
+                    # Calculate absolute and percentage delta
+                    absolute_delta = predicted_site_eui - national_median
+                    percent_delta = (absolute_delta / national_median) * 100 if national_median != 0 else 0
+                    
                 else:
-                    # This might be a reference value, not a prediction
-                    national_median = 1400  # Keep as reference if not predicted
-                st.markdown(display_metric_card("National Median Total GHG Performance", national_median, "Metric Tons CO₂"), unsafe_allow_html=True)
+                    # Fallback if no median data found for this property type
+                    national_median = "N/A"
+                    unit_text = ""
+                    absolute_delta = 0
+                    percent_delta = 0
+                    st.warning(f"No median data found for property type: {primary_property_type}")
+                
+                st.markdown(display_metric_card_national("National Median Site EUI", national_median, unit_text, 
+                                                    primary_property_type, absolute_delta, percent_delta), 
+                        unsafe_allow_html=True)
             
             # Model accuracy section
             st.markdown("### Model Accuracy Statistics")
@@ -676,7 +910,7 @@ def main():
         # Show empty cards as placeholders
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(display_metric_card("Site Energy Use", 0, "kBtu"), unsafe_allow_html=True)
+            st.markdown(display_metric_card("Site Energy Use", 0, "kBtu/ft2"), unsafe_allow_html=True)
         with col2:
             st.markdown(display_metric_card("Energy Star Score", 0), unsafe_allow_html=True)
         
@@ -716,10 +950,10 @@ def main():
             col1, col2 = st.columns([1, 1])
 
             with col1:
-                st.markdown("### 📍 Map View")
+                st.markdown("###  Map View")
                 
             with col2:
-                st.markdown("### 📍 Street View")
+                st.markdown("### Street View")
             
             # Display the synced maps
             synced_maps_html = create_synced_map_streetview(latitude, longitude, api_key, address)
@@ -728,7 +962,7 @@ def main():
         with st.spinner('🔍 Fetching building data from NYC PLUTO database...'):
             print(longitude)
             print(latitude)
-            pluto_data = fetch_pluto_data(longitude=longitude, latitude=latitude)
+            pluto_data = fetch_pluto_data(address=address, longitude=longitude, latitude=latitude)
             if pluto_data is not None:
             
                 display_pluto_section_alternative(pluto_data)
