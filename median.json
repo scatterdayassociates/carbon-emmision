@@ -1,0 +1,530 @@
+[
+  {
+    "portfolio_manager_primary_function": "bank branch",
+    "site_eui_kbtu_ft2": 88.3,
+    "source_eui_kbtu_ft2": 209.9,
+    "reference_data_source": "CBECS - Bank/Financial"
+  },
+  {
+    "portfolio_manager_primary_function": "financial office",
+    "site_eui_kbtu_ft2": 52.9,
+    "source_eui_kbtu_ft2": 116.4,
+    "reference_data_source": "CBECS - Office & Bank/Financial"
+  },
+  {
+    "portfolio_manager_primary_function": "adult education",
+    "site_eui_kbtu_ft2": 52.4,
+    "source_eui_kbtu_ft2": 110.4,
+    "reference_data_source": "CBECS - Education"
+  },
+  {
+    "portfolio_manager_primary_function": "college/university",
+    "site_eui_kbtu_ft2": 84.3,
+    "source_eui_kbtu_ft2": 180.6,
+    "reference_data_source": "CBECS - College/University"
+  },
+  {
+    "portfolio_manager_primary_function": "k-12 school",
+    "site_eui_kbtu_ft2": 48.5,
+    "source_eui_kbtu_ft2": 104.4,
+    "reference_data_source": "CBECS - Elementary/Middle & High School"
+  },
+  {
+    "portfolio_manager_primary_function": "pre-school/daycare",
+    "site_eui_kbtu_ft2": 64.8,
+    "source_eui_kbtu_ft2": 131.5,
+    "reference_data_source": "CBECS - Preschool"
+  },
+  {
+    "portfolio_manager_primary_function": "vocational school",
+    "site_eui_kbtu_ft2": 52.4,
+    "source_eui_kbtu_ft2": 110.4,
+    "reference_data_source": "CBECS - Education"
+  },
+  {
+    "portfolio_manager_primary_function": "other - education",
+    "site_eui_kbtu_ft2": 52.4,
+    "source_eui_kbtu_ft2": 110.4,
+    "reference_data_source": "CBECS - Education"
+  },
+  {
+    "portfolio_manager_primary_function": "convention center",
+    "site_eui_kbtu_ft2": 56.1,
+    "source_eui_kbtu_ft2": 109.6,
+    "reference_data_source": "CBECS - Social/Meeting"
+  },
+  {
+    "portfolio_manager_primary_function": "movie theater",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "museum",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "performing arts",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "recreation",
+    "site_eui_kbtu_ft2": 50.8,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Recreation"
+  },
+  {
+    "portfolio_manager_primary_function": "bowling alley",
+    "site_eui_kbtu_ft2": 50.8,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Recreation"
+  },
+  {
+    "portfolio_manager_primary_function": "fitness center/health club/gym",
+    "site_eui_kbtu_ft2": 50.8,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Recreation"
+  },
+  {
+    "portfolio_manager_primary_function": "ice/curling rink",
+    "site_eui_kbtu_ft2": 50.8,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Recreation"
+  },
+  {
+    "portfolio_manager_primary_function": "roller rink",
+    "site_eui_kbtu_ft2": 50.8,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Recreation"
+  },
+  {
+    "portfolio_manager_primary_function": "swimming pool",
+    "site_eui_kbtu_ft2": 50.8,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Recreation"
+  },
+  {
+    "portfolio_manager_primary_function": "other - recreation",
+    "site_eui_kbtu_ft2": 50.8,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Recreation"
+  },
+  {
+    "portfolio_manager_primary_function": "social/meeting hall",
+    "site_eui_kbtu_ft2": 56.1,
+    "source_eui_kbtu_ft2": 109.6,
+    "reference_data_source": "CBECS - Social/Meeting"
+  },
+  {
+    "portfolio_manager_primary_function": "stadium",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "indoor arena",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "race track",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "stadium (closed)",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "stadium (open)",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "other - stadium",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "other",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "aquarium",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "casino",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "zoo",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "other - entertainment/public assembly",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "bar/nightclub",
+    "site_eui_kbtu_ft2": 130.7,
+    "source_eui_kbtu_ft2": 297.0,
+    "reference_data_source": "CBECS - Bar/Pub/Lounge"
+  },
+  {
+    "portfolio_manager_primary_function": "convenience store",
+    "site_eui_kbtu_ft2": 350.9,
+    "source_eui_kbtu_ft2": 883.5,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "convenience store with gas station",
+    "site_eui_kbtu_ft2": 350.9,
+    "source_eui_kbtu_ft2": 883.5,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "convenience store without gas station",
+    "site_eui_kbtu_ft2": 350.9,
+    "source_eui_kbtu_ft2": 883.5,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "fast food restaurant",
+    "site_eui_kbtu_ft2": 402.7,
+    "source_eui_kbtu_ft2": 886.4,
+    "reference_data_source": "CBECS - Fast Food"
+  },
+  {
+    "portfolio_manager_primary_function": "restaurant",
+    "site_eui_kbtu_ft2": 325.6,
+    "source_eui_kbtu_ft2": 573.7,
+    "reference_data_source": "CBECS - Restaurant/Cafeteria"
+  },
+  {
+    "portfolio_manager_primary_function": "other - restaurant/bar",
+    "site_eui_kbtu_ft2": 325.6,
+    "source_eui_kbtu_ft2": 573.7,
+    "reference_data_source": "CBECS - Restaurant/Cafeteria"
+  },
+  {
+    "portfolio_manager_primary_function": "supermarket/grocery store",
+    "site_eui_kbtu_ft2": 196.0,
+    "source_eui_kbtu_ft2": 444.0,
+    "reference_data_source": "CBECS - Grocery Store/Food Market"
+  },
+  {
+    "portfolio_manager_primary_function": "wholesale club/supercenter",
+    "site_eui_kbtu_ft2": 51.4,
+    "source_eui_kbtu_ft2": 120.0,
+    "reference_data_source": "CBECS - Retail Store"
+  },
+  {
+    "portfolio_manager_primary_function": "other food sales",
+    "site_eui_kbtu_ft2": 231.4,
+    "source_eui_kbtu_ft2": 592.6,
+    "reference_data_source": "CBECS - Food Sales"
+  },
+  {
+    "portfolio_manager_primary_function": "food service",
+    "site_eui_kbtu_ft2": 270.3,
+    "source_eui_kbtu_ft2": 527.7,
+    "reference_data_source": "CBECS - Food Service"
+  },
+  {
+    "portfolio_manager_primary_function": "ambulatory surgical center",
+    "site_eui_kbtu_ft2": 62.0,
+    "source_eui_kbtu_ft2": 138.3,
+    "reference_data_source": "CBECS - Outpatient Healthcare"
+  },
+  {
+    "portfolio_manager_primary_function": "hospital (general medical & surgical)",
+    "site_eui_kbtu_ft2": 234.3,
+    "source_eui_kbtu_ft2": 426.9,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "other/specialty hospital",
+    "site_eui_kbtu_ft2": 206.7,
+    "source_eui_kbtu_ft2": 433.9,
+    "reference_data_source": "CBECS - Inpatient Healthcare"
+  },
+  {
+    "portfolio_manager_primary_function": "medical office",
+    "site_eui_kbtu_ft2": 97.7,
+    "source_eui_kbtu_ft2": 232.8,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "outpatient rehabilitation/physical therapy",
+    "site_eui_kbtu_ft2": 62.0,
+    "source_eui_kbtu_ft2": 138.3,
+    "reference_data_source": "CBECS - Outpatient Healthcare"
+  },
+  {
+    "portfolio_manager_primary_function": "residential care facility",
+    "site_eui_kbtu_ft2": 99.0,
+    "source_eui_kbtu_ft2": 213.2,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "senior living community",
+    "site_eui_kbtu_ft2": 99.0,
+    "source_eui_kbtu_ft2": 213.2,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "urgent care/clinic/other outpatient",
+    "site_eui_kbtu_ft2": 64.5,
+    "source_eui_kbtu_ft2": 145.8,
+    "reference_data_source": "CBECS - Clinic/Outpatient"
+  },
+  {
+    "portfolio_manager_primary_function": "barracks",
+    "site_eui_kbtu_ft2": 57.9,
+    "source_eui_kbtu_ft2": 107.5,
+    "reference_data_source": "CBECS - Dormitory"
+  },
+  {
+    "portfolio_manager_primary_function": "hotel",
+    "site_eui_kbtu_ft2": 63.0,
+    "source_eui_kbtu_ft2": 146.7,
+    "reference_data_source": "CBECS - Hotel & Motel/Inn"
+  },
+  {
+    "portfolio_manager_primary_function": "multifamily housing",
+    "site_eui_kbtu_ft2": 59.6,
+    "source_eui_kbtu_ft2": 118.1,
+    "reference_data_source": "Fannie Mae Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "prison/incarceration",
+    "site_eui_kbtu_ft2": 69.9,
+    "source_eui_kbtu_ft2": 156.4,
+    "reference_data_source": "CBECS - Public Order and Safety"
+  },
+  {
+    "portfolio_manager_primary_function": "residence hall/dormitory",
+    "site_eui_kbtu_ft2": 57.9,
+    "source_eui_kbtu_ft2": 107.5,
+    "reference_data_source": "CBECS - Dormitory"
+  },
+  {
+    "portfolio_manager_primary_function": "other - lodging/residential",
+    "site_eui_kbtu_ft2": 63.6,
+    "source_eui_kbtu_ft2": 143.6,
+    "reference_data_source": "CBECS - Lodging"
+  },
+  {
+    "portfolio_manager_primary_function": "mixed use property",
+    "site_eui_kbtu_ft2": 40.1,
+    "source_eui_kbtu_ft2": 89.3,
+    "reference_data_source": "CBECS - Other"
+  },
+  {
+    "portfolio_manager_primary_function": "office",
+    "site_eui_kbtu_ft2": 52.9,
+    "source_eui_kbtu_ft2": 116.4,
+    "reference_data_source": "CBECS - Office & Bank/Financial"
+  },
+  {
+    "portfolio_manager_primary_function": "veterinary office",
+    "site_eui_kbtu_ft2": 64.5,
+    "source_eui_kbtu_ft2": 145.8,
+    "reference_data_source": "CBECS - Clinic/Outpatient"
+  },
+  {
+    "portfolio_manager_primary_function": "courthouse",
+    "site_eui_kbtu_ft2": 101.2,
+    "source_eui_kbtu_ft2": 211.4,
+    "reference_data_source": "CBECS - Courthouse"
+  },
+  {
+    "portfolio_manager_primary_function": "drinking water treatment & distribution",
+    "site_eui_kbtu_ft2": 2.27,
+    "source_eui_kbtu_ft2": 5.90,
+    "reference_data_source": "AWWA - Water Treatment Plant"
+  },
+  {
+    "portfolio_manager_primary_function": "fire station",
+    "site_eui_kbtu_ft2": 63.5,
+    "source_eui_kbtu_ft2": 124.9,
+    "reference_data_source": "CBECS - Fire Station/Police Station"
+  },
+  {
+    "portfolio_manager_primary_function": "library",
+    "site_eui_kbtu_ft2": 71.6,
+    "source_eui_kbtu_ft2": 143.6,
+    "reference_data_source": "CBECS - Library"
+  },
+  {
+    "portfolio_manager_primary_function": "mailing center/post office",
+    "site_eui_kbtu_ft2": 47.9,
+    "source_eui_kbtu_ft2": 96.9,
+    "reference_data_source": "CBECS - Service"
+  },
+  {
+    "portfolio_manager_primary_function": "police station",
+    "site_eui_kbtu_ft2": 63.5,
+    "source_eui_kbtu_ft2": 124.9,
+    "reference_data_source": "CBECS - Fire Station/Police Station"
+  },
+  {
+    "portfolio_manager_primary_function": "transportation terminal/station",
+    "site_eui_kbtu_ft2": 56.2,
+    "source_eui_kbtu_ft2": 112.0,
+    "reference_data_source": "CBECS - Public Assembly"
+  },
+  {
+    "portfolio_manager_primary_function": "wastewater treatment plant",
+    "site_eui_kbtu_ft2": 2.89,
+    "source_eui_kbtu_ft2": 7.51,
+    "reference_data_source": "AWWA - Wastewater Plant"
+  },
+  {
+    "portfolio_manager_primary_function": "other - public services",
+    "site_eui_kbtu_ft2": 40.1,
+    "source_eui_kbtu_ft2": 89.3,
+    "reference_data_source": "CBECS - Other"
+  },
+  {
+    "portfolio_manager_primary_function": "worship facility",
+    "site_eui_kbtu_ft2": 30.5,
+    "source_eui_kbtu_ft2": 58.4,
+    "reference_data_source": "CBECS - Religious Worship"
+  },
+  {
+    "portfolio_manager_primary_function": "enclosed mall",
+    "site_eui_kbtu_ft2": 65.7,
+    "source_eui_kbtu_ft2": 170.7,
+    "reference_data_source": "CBECS - Enclosed Mall"
+  },
+  {
+    "portfolio_manager_primary_function": "lifestyle center",
+    "site_eui_kbtu_ft2": 103.5,
+    "source_eui_kbtu_ft2": 228.8,
+    "reference_data_source": "CBECS - Strip Shopping Mall"
+  },
+  {
+    "portfolio_manager_primary_function": "strip mall",
+    "site_eui_kbtu_ft2": 103.5,
+    "source_eui_kbtu_ft2": 228.8,
+    "reference_data_source": "CBECS - Strip Shopping Mall"
+  },
+  {
+    "portfolio_manager_primary_function": "other - mall",
+    "site_eui_kbtu_ft2": 101.6,
+    "source_eui_kbtu_ft2": 225.3,
+    "reference_data_source": "CBECS - Enclosed Mall and Strip Shopping Mall"
+  },
+  {
+    "portfolio_manager_primary_function": "retail store",
+    "site_eui_kbtu_ft2": 51.4,
+    "source_eui_kbtu_ft2": 120.0,
+    "reference_data_source": "CBECS - Retail Store"
+  },
+  {
+    "portfolio_manager_primary_function": "vehicle dealership",
+    "site_eui_kbtu_ft2": 71.9,
+    "source_eui_kbtu_ft2": 138.2,
+    "reference_data_source": "Industry Survey"
+  },
+  {
+    "portfolio_manager_primary_function": "data center",
+    "site_eui_kbtu_ft2": 1.82,
+    "source_eui_kbtu_ft2": 1.82,
+    "reference_data_source": "EPA - Data Center"
+  },
+  {
+    "portfolio_manager_primary_function": "laboratory",
+    "site_eui_kbtu_ft2": 115.3,
+    "source_eui_kbtu_ft2": 318.2,
+    "reference_data_source": "CBECS - Laboratory"
+  },
+  {
+    "portfolio_manager_primary_function": "other – technology/science",
+    "site_eui_kbtu_ft2": 40.1,
+    "source_eui_kbtu_ft2": 89.3,
+    "reference_data_source": "CBECS - Other"
+  },
+  {
+    "portfolio_manager_primary_function": "personal services (health/beauty, dry cleaning, etc.)",
+    "site_eui_kbtu_ft2": 47.9,
+    "source_eui_kbtu_ft2": 96.9,
+    "reference_data_source": "CBECS - Service"
+  },
+  {
+    "portfolio_manager_primary_function": "repair services (vehicle, shoe, locksmith, etc.)",
+    "site_eui_kbtu_ft2": 47.9,
+    "source_eui_kbtu_ft2": 96.9,
+    "reference_data_source": "CBECS - Service"
+  },
+  {
+    "portfolio_manager_primary_function": "other - services",
+    "site_eui_kbtu_ft2": 47.9,
+    "source_eui_kbtu_ft2": 96.9,
+    "reference_data_source": "CBECS - Service"
+  },
+  {
+    "portfolio_manager_primary_function": "energy/power station",
+    "site_eui_kbtu_ft2": 40.1,
+    "source_eui_kbtu_ft2": 89.3,
+    "reference_data_source": "CBECS - Other"
+  },
+  {
+    "portfolio_manager_primary_function": "other - utility",
+    "site_eui_kbtu_ft2": 40.1,
+    "source_eui_kbtu_ft2": 89.3,
+    "reference_data_source": "CBECS - Other"
+  },
+  {
+    "portfolio_manager_primary_function": "self-storage facility",
+    "site_eui_kbtu_ft2": 20.2,
+    "source_eui_kbtu_ft2": 47.8,
+    "reference_data_source": "CBECS – Non-refrigerated Warehouse"
+  },
+  {
+    "portfolio_manager_primary_function": "distribution center",
+    "site_eui_kbtu_ft2": 22.7,
+    "source_eui_kbtu_ft2": 52.9,
+    "reference_data_source": "CBECS – Non-refrigerated Warehouse & Distribution Center"
+  },
+  {
+    "portfolio_manager_primary_function": "non-refrigerated warehouse",
+    "site_eui_kbtu_ft2": 22.7,
+    "source_eui_kbtu_ft2": 52.9,
+    "reference_data_source": "CBECS – Non-refrigerated Warehouse & Distribution Center"
+  },
+  {
+    "portfolio_manager_primary_function": "refrigerated warehouse",
+    "site_eui_kbtu_ft2": 84.1,
+    "source_eui_kbtu_ft2": 235.6,
+    "reference_data_source": "CBECS – Refrigerated Warehouses"
+  },
+  {
+    "portfolio_manager_primary_function": "other",
+    "site_eui_kbtu_ft2": 40.1,
+    "source_eui_kbtu_ft2": 89.3,
+    "reference_data_source": "CBECS - Other"
+  }
+]
