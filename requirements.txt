@@ -1,8 +1,9 @@
-streamlit
-pandas
-numpy
-requests
-folium
-scikit-learn==1.6.1
+streamlit==1.35.0
+pandas==2.2.2
+numpy==1.26.4
+requests==2.32.3
+folium==0.16.0
+plotly>=5.18.0
 geopy
-rapidfuzz 
+rapidfuzz
+scikit-learn==1.6.1
