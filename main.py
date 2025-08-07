@@ -9,7 +9,6 @@ import folium
 import re
 import json
 import pandas as pd
-from geopy.distance import geodesic
 from rapidfuzz import process, fuzz
 import plotly.express as px
 import plotly.graph_objects as go
