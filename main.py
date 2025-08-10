@@ -12,6 +12,7 @@ import pandas as pd
 from rapidfuzz import process, fuzz
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 from plotly.subplots import make_subplots
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
@@ -137,6 +138,8 @@ def get_coordinates(address, api_key):
         st.error(f"Error fetching coordinates: {e}")
         return None, None
 
+
+
 # Enhanced CSS with modern UI/UX improvements
 st.markdown("""
 <style>
@@ -226,6 +229,22 @@ st.markdown("""
         color: #64748b;
         font-weight: 400;
         letter-spacing: -0.01em;
+    }
+    
+    /* Chart Card Styling */
+    .stPlotlyChart {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 24px;
+        margin: 12px 0;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .stPlotlyChart:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
     
     /* Tooltip Enhancements */
@@ -766,18 +785,20 @@ def display_accuracy_card(title, value, unit=""):
     </div>
     """
 
+
+
 def display_accuracy_metrics():
     """Display accuracy metrics using Streamlit columns"""
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.markdown(display_accuracy_card("R-Squared<br>Site Energy Use", "0.8566"), unsafe_allow_html=True)
+        st.markdown(display_accuracy_card("R-Squared<br>Site Energy Use", "0.9780"), unsafe_allow_html=True)
     
     with col2:
-        st.markdown(display_accuracy_card("Mean Absolute Error<br>Site Energy Use", "5,078"), unsafe_allow_html=True)
+        st.markdown(display_accuracy_card("Mean Absolute Error<br>Site Energy Use", "1.44"), unsafe_allow_html=True)
     
     with col3:
-        st.markdown(display_accuracy_card("Root Mean Squared Error<br>Site Energy Use", "26,649"), unsafe_allow_html=True)
+        st.markdown(display_accuracy_card("Root Mean Squared Error<br>Site Energy Use", " 5.25"), unsafe_allow_html=True)
 
 # Function to load median data
 def load_median_data(median_file_path='median.json'):
@@ -1007,28 +1028,31 @@ def main():
         if prediction:
             # Display main prediction cards using actual model predictions
             median_site_eui = get_median_value_for_property_type(median_data, primary_property_type)
+            
+            # Get predicted site EUI from the model
+            site_eui_key = next((k for k in prediction.keys() if 'site_eui' in k.lower()), None)
+            if site_eui_key:
+                predicted_site_eui = prediction[site_eui_key]
+            else:
+                # Fallback to calculated value if not in prediction
+                predicted_site_eui = (building_data['electricity_use_kbtu'] + building_data['natural_gas_use_kbtu']) / building_area
+            
+            # Display four predicted cards first
             col1, col2 = st.columns(2)
             
             with col1:
                 # Site Energy Use - try to get from prediction first
                 site_energy_key = next((k for k in prediction.keys() if 'site' in k.lower() and 'energy' in k.lower()), None)
                 if site_energy_key:
-                    site_energy_value = prediction[site_energy_key]/building_area
+                    site_energy_value = prediction[site_energy_key]
                 else:
                     # Fallback to calculated value if not in prediction
-                    site_energy_value = (building_data['electricity_use_kbtu'] + building_data['natural_gas_use_kbtu']) / 1000
-                st.markdown(display_metric_card("Site Energy Use", site_energy_value, "kBtu/ft²"), unsafe_allow_html=True)
+                    site_energy_value = (building_data['electricity_use_kbtu'] + building_data['natural_gas_use_kbtu'])
+                st.markdown(display_metric_card("Site Energy Use", site_energy_value, "kBtu"), unsafe_allow_html=True)
             
             with col2:
                 # Energy Star Score - get from prediction
-                energy_star_key = next((k for k in prediction.keys() if 'energy_star' in k.lower() or 'star' in k.lower() or 'score' in k.lower()), None)
-                if energy_star_key:
-                    energy_star_score = prediction[energy_star_key]
-                else:
-                    # If not in prediction, look for any score-related prediction
-                    score_key = next((k for k in prediction.keys() if 'score' in k.lower()), None)
-                    energy_star_score = prediction[score_key] if score_key else 0
-                st.markdown(display_metric_card("Energy Star Score", energy_star_score), unsafe_allow_html=True)
+                st.markdown(display_metric_card("Site EUI", predicted_site_eui, "kBtu/ft²"), unsafe_allow_html=True)
             
             col3, col4 = st.columns(2)
             
@@ -1042,30 +1066,35 @@ def main():
                 st.markdown(display_metric_card_net("Net Emissions", emissions_value, "Metric Tons CO₂"), unsafe_allow_html=True)
             
             with col4:
-                # National Median - use median data from JSON
-                if median_site_eui is not None:
-                    national_median = median_site_eui
-                    unit_text = "kBtu/ft²"
-                    
-                    # Calculate delta values
-                    # Get predicted site EUI (assuming it's normalized by floor area)
-                    predicted_site_eui = site_energy_value / building_data.get('gross_floor_area', 1) if building_data.get('gross_floor_area', 0) > 0 else site_energy_value
-                    
-                    # Calculate absolute and percentage delta
-                    absolute_delta = predicted_site_eui - national_median
-                    percent_delta = (absolute_delta / national_median) * 100 if national_median != 0 else 0
-                    
+                # Site EUI - get from prediction
+                energy_star_key = next((k for k in prediction.keys() if 'energy_star' in k.lower() or 'star' in k.lower() or 'score' in k.lower()), None)
+                if energy_star_key:
+                    energy_star_score = prediction[energy_star_key]
                 else:
-                    # Fallback if no median data found for this property type
-                    national_median = "N/A"
-                    unit_text = ""
-                    absolute_delta = 0
-                    percent_delta = 0
-                    st.warning(f"No median data found for property type: {primary_property_type}")
+                    # If not in prediction, look for any score-related prediction
+                    score_key = next((k for k in prediction.keys() if 'score' in k.lower()), None)
+                    energy_star_score = prediction[score_key] if score_key else 0
+                st.markdown(display_metric_card("Energy Star Score", energy_star_score), unsafe_allow_html=True)
                 
+            
+            
+            
+            if median_site_eui is not None:
+                national_median = median_site_eui
+                unit_text = "kBtu/ft²"
+                
+                # Calculate delta values between predicted site EUI and national median
+                absolute_delta = predicted_site_eui - national_median
+                percent_delta = (absolute_delta / national_median) * 100 if national_median != 0 else 0
+                
+                # Display benchmark card with delta
                 st.markdown(display_metric_card_national("National Median Site EUI", national_median, unit_text, 
-                                                    primary_property_type, absolute_delta, percent_delta), 
-                        unsafe_allow_html=True)
+                                                        primary_property_type, absolute_delta, percent_delta), 
+                            unsafe_allow_html=True)
+            else:
+                # Fallback if no median data found for this property type
+                st.warning(f"No median data found for property type: {primary_property_type}")
+                st.markdown(display_metric_card("National Median Site EUI", "N/A", ""), unsafe_allow_html=True)
             
         else:
             st.error("⚠️ Model not available. Please ensure the model file is in the correct location.")
@@ -1075,12 +1104,12 @@ def main():
             col1, col2 = st.columns(2)
             with col1:
                 site_energy = building_data['electricity_use_kbtu'] + building_data['natural_gas_use_kbtu']
-                st.markdown(display_metric_card("Site Energy Use", site_energy/1000, "kBtu"), unsafe_allow_html=True)
+                st.markdown(display_metric_card("Site Energy Use", site_energy, "kBtu"), unsafe_allow_html=True)
             
             with col2:
                 # Calculate Energy Star Score based on EUI
-                energy_star_score = max(1, min(100, 125 - (weather_normalized_eui * 0.5)))
-                st.markdown(display_metric_card("Energy Star Score", energy_star_score), unsafe_allow_html=True)
+                site_eui = (building_data['electricity_use_kbtu'] + building_data['natural_gas_use_kbtu']) / building_area
+                st.markdown(display_metric_card("Site EUI", site_eui, "kBtu/ft²"), unsafe_allow_html=True)
             
             col3, col4 = st.columns(2)
             with col3:
@@ -1091,19 +1120,34 @@ def main():
                 st.markdown(display_metric_card("Net Emissions", emissions_value, "Metric Tons CO₂"), unsafe_allow_html=True)
             
             with col4:
-                # Calculate national median
-                type_factors = {
-                    'Office': 0.8,
-                    'Multifamily Housing': 0.6,
-                    'Retail Store': 1.0,
-                    'Hospital (General Medical & Surgical)': 1.5,
-                    'K-12 School': 0.7,
-                    'Hotel': 1.2
-                }
-                base_factor = type_factors.get(primary_property_type, 1.0)
-                size_factor = max(0.5, 1.2 - (building_area / 100000))
-                national_median = (building_area / 1000) * base_factor * size_factor * 0.05
-                st.markdown(display_metric_card("National Median Total GHG Performance", national_median, "Metric Tons CO₂"), unsafe_allow_html=True)
+                # Calculate site EUI
+                energy_star_score = max(1, min(100, 125 - (weather_normalized_eui * 0.5)))
+                st.markdown(display_metric_card("Energy Star Score", energy_star_score), unsafe_allow_html=True)
+                site_eui = (building_data['electricity_use_kbtu'] + building_data['natural_gas_use_kbtu']) / building_area
+                st.markdown(display_metric_card("Site EUI", site_eui, "kBtu/ft²"), unsafe_allow_html=True)
+            
+            # Display benchmark card below the four calculated cards
+            st.markdown("---")
+            st.markdown("### Benchmark Comparison")
+            
+            # Try to get median data for comparison
+            median_site_eui = get_median_value_for_property_type(median_data, primary_property_type)
+            if median_site_eui is not None:
+                national_median = median_site_eui
+                unit_text = "kBtu/ft²"
+                
+                # Calculate delta values between calculated site EUI and national median
+                absolute_delta = site_eui - national_median
+                percent_delta = (absolute_delta / national_median) * 100 if national_median != 0 else 0
+                
+                # Display benchmark card with delta
+                st.markdown(display_metric_card_national("National Median Total GHG Performance", national_median, unit_text, 
+                                                        primary_property_type, absolute_delta, percent_delta), 
+                            unsafe_allow_html=True)
+            else:
+                # Fallback if no median data found for this property type
+                st.warning(f"No median data found for property type: {primary_property_type}")
+                st.markdown(display_metric_card("National Median Site EUI", "N/A", ""), unsafe_allow_html=True)
         
         # Model accuracy section with Streamlit expander
         with st.expander("Model Accuracy Statistics", expanded=False):
@@ -1113,15 +1157,16 @@ def main():
         # Show empty cards as placeholders
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown(display_metric_card("Site Energy Use", 0, "kBtu/ft²"), unsafe_allow_html=True)
+            st.markdown(display_metric_card("Site Energy Use", 0, "kBtu"), unsafe_allow_html=True)
         with col2:
-            st.markdown(display_metric_card("Energy Star Score", 0), unsafe_allow_html=True)
+            st.markdown(display_metric_card("Site EUI", 0, "kBtu/ft²"), unsafe_allow_html=True)
         
         col3, col4 = st.columns(2)
         with col3:
             st.markdown(display_metric_card("Net Emissions", 0, "Metric Tons CO₂"), unsafe_allow_html=True)
         with col4:
-            st.markdown(display_metric_card("National Median Total GHG Performance", 0, "Metric Tons CO₂"), unsafe_allow_html=True)
+            st.markdown(display_metric_card("Energy Star Score", 0), unsafe_allow_html=True)
+            
         
         # Model accuracy section with Streamlit expander (collapsed by default)
         with st.expander("Model Accuracy Statistics", expanded=False):
@@ -1142,9 +1187,6 @@ def main():
     df = load_analysis_data()
     
     # Feature Importance Analysis
-    st.markdown("### Feature Importance Analysis")
-    st.markdown("Understanding which factors most significantly influence building energy efficiency predictions.")
-    
     # Prepare data for feature importance
     feature_cols = ['building_gross_floor_area_ft2', 'year_built', 'occupancy_percent', 
                    'number_of_buildings', 'electricity_use_kbtu', 'natural_gas_use_kbtu']
@@ -1191,14 +1233,17 @@ def main():
         paper_bgcolor='rgba(0,0,0,0)'
     )
     
-    st.plotly_chart(fig_importance, use_container_width=True, config={'displayModeBar': False})
+    
+    
+    # Display chart in a container that will be styled as a card
+    with st.container():
+        
+        st.plotly_chart(fig_importance, use_container_width=True, config={'displayModeBar': False})
+       
     
     st.markdown("---")
     
     # Predictor Distributions Analysis
-    st.markdown("### Predictor Distributions Analysis")
-    st.markdown("Exploring how different building characteristics relate to Site EUI across various dimensions using violin plots to show distribution patterns.")
-    
     # Create subplots for different predictors
     fig_dist = make_subplots(
         rows=2, cols=2,
@@ -1296,14 +1341,16 @@ def main():
     fig_dist.update_yaxes(title_text="Site EUI (kBtu/ft²)", row=2, col=1)
     fig_dist.update_yaxes(title_text="Site EUI (kBtu/ft²)", row=2, col=2)
     
-    st.plotly_chart(fig_dist, use_container_width=True, config={'displayModeBar': False})
+    # Create card container for chart
+
+    # Display chart in a container that will be styled as a card
+    with st.container():
+        st.plotly_chart(fig_dist, use_container_width=True, config={'displayModeBar': False})
+        st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("---")
     
     # Feature Correlations Analysis
-    st.markdown("### Feature Correlations Analysis")
-    st.markdown("Understanding the relationships between different building features and their correlation with Site EUI.")
-    
     # Prepare correlation data
     correlation_cols = ['building_gross_floor_area_ft2', 'year_built', 'occupancy_percent', 
                        'number_of_buildings', 'electricity_use_kbtu', 'natural_gas_use_kbtu',
@@ -1334,7 +1381,14 @@ def main():
         yaxis=dict(autorange="reversed")
     )
     
-    st.plotly_chart(fig_corr, use_container_width=True, config={'displayModeBar': False})
+    # Create card container for chart
+   
+    
+    # Display chart in a container that will be styled as a card
+    with st.container():
+       
+        st.plotly_chart(fig_corr, use_container_width=True, config={'displayModeBar': False})
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
     st.markdown('<h1 class="main-header">Property Intelligence</h1>', unsafe_allow_html=True)
