@@ -898,14 +898,20 @@ def main():
     # Sidebar inputs
     st.sidebar.title("Building Parameters")
 
-    st.sidebar.subheader("Address")
+    st.sidebar.subheader("Property Location")
     address = st.sidebar.text_input(
     "Enter Building Address",
     placeholder="123 Main Street, City, Country"
     )
-    
+    # Context section
+    selected_borough = st.sidebar.selectbox(
+        "Borough", 
+        list(borough_options.keys()),
+        index=list(borough_options.keys()).index("Manhattan"),
+        format_func=lambda x: borough_options[x]
+    )
     # Building section
-    st.sidebar.subheader("Building")
+    st.sidebar.subheader("Key Property Features")
     building_area = st.sidebar.number_input(
         "Building Gross Floor Area (ft²)", 
         min_value=1, 
@@ -929,7 +935,6 @@ def main():
     )
     
     # Operations section
-    st.sidebar.subheader("Operations")
     occupancy_percent = st.sidebar.slider(
         "Occupancy (%)", 
         min_value=0.0, 
@@ -947,7 +952,6 @@ def main():
     )
     
     # Loads section
-    st.sidebar.subheader("Loads")
     electricity_use = st.sidebar.number_input(
         "Electricity Use (kBtu)", 
         min_value=0, 
@@ -967,7 +971,6 @@ def main():
     )
     
     # Environment section
-    st.sidebar.subheader("Environment")
     weather_normalized_eui = st.sidebar.number_input(
         "Weather-Normalized Site EUI (kBtu/ft²)", 
         min_value=1.0, 
@@ -977,14 +980,7 @@ def main():
         help="Energy Use Intensity normalized for weather conditions"
     )
     
-    # Context section
-    st.sidebar.subheader("Context")
-    selected_borough = st.sidebar.selectbox(
-        "Borough", 
-        list(borough_options.keys()),
-        index=list(borough_options.keys()).index("Manhattan"),
-        format_func=lambda x: borough_options[x]
-    )
+    
     
     construction_status = st.sidebar.radio(
         "Construction Status", 
@@ -1243,110 +1239,146 @@ def main():
     
     st.markdown("---")
     
-    # Predictor Distributions Analysis
-    # Create subplots for different predictors
-    fig_dist = make_subplots(
-        rows=2, cols=2,
-        subplot_titles=('Building Type vs Site EUI', 'Year Built vs Site EUI', 'Borough vs Site EUI', 'Occupancy vs Site EUI'),
-        specs=[[{"secondary_y": False}, {"secondary_y": False}],
-               [{"secondary_y": False}, {"secondary_y": False}]]
-    )
+    # Predictor Distributions Analysis - 4 Separate Cards in 2x2 Layout
     
-    # Building Type vs Site EUI - Violin plot
+    # Prepare data for all charts
     # Get top building types by count to avoid overcrowding
     building_type_counts = df['primary_property_type'].value_counts()
     top_building_types = building_type_counts.head(8).index
     building_type_df = df[df['primary_property_type'].isin(top_building_types)]
     
-    fig_dist.add_trace(
-        go.Violin(
-            x=building_type_df['primary_property_type'],
-            y=building_type_df['weather_normalized_site_eui_kbtu_ft2'],
-            name='Building Type',
-            box_visible=True,
-            meanline_visible=True,
-            line_color='#10b981',
-            fillcolor='rgba(16, 185, 129, 0.3)'
-        ),
-        row=1, col=1
-    )
-    
-    # Year Built vs Site EUI - Violin plot
     # Group years into decades for better visualization
     df['decade'] = (df['year_built'] // 10) * 10
     decade_df = df[df['decade'] >= 1900]  # Filter out very old buildings
     
-    fig_dist.add_trace(
-        go.Violin(
-            x=decade_df['decade'],
-            y=decade_df['weather_normalized_site_eui_kbtu_ft2'],
-            name='Year Built',
-            box_visible=True,
-            meanline_visible=True,
-            line_color='#f59e0b',
-            fillcolor='rgba(245, 158, 11, 0.3)'
-        ),
-        row=1, col=2
-    )
-    
-    # Borough vs Site EUI - Violin plot
-    fig_dist.add_trace(
-        go.Violin(
-            x=df['borough'],
-            y=df['weather_normalized_site_eui_kbtu_ft2'],
-            name='Borough',
-            box_visible=True,
-            meanline_visible=True,
-            line_color='#8b5cf6',
-            fillcolor='rgba(139, 92, 246, 0.3)'
-        ),
-        row=2, col=1
-    )
-    
-    # Occupancy vs Site EUI - Violin plot
     # Group occupancy into ranges for better visualization
     df['occupancy_range'] = pd.cut(df['occupancy_percent'], bins=[0, 25, 50, 75, 100], labels=['0-25%', '25-50%', '50-75%', '75-100%'])
     occupancy_df = df.dropna(subset=['occupancy_range'])
     
-    fig_dist.add_trace(
-        go.Violin(
-            x=occupancy_df['occupancy_range'],
-            y=occupancy_df['weather_normalized_site_eui_kbtu_ft2'],
-            name='Occupancy',
-            box_visible=True,
-            meanline_visible=True,
-            line_color='#ef4444',
-            fillcolor='rgba(239, 68, 68, 0.3)'
-        ),
-        row=2, col=2
-    )
+    # Create 2x2 layout with columns
+    col1, col2 = st.columns(2)
     
-    fig_dist.update_layout(
-        title='Predictor Distributions and Site EUI Relationships',
-        height=600,
-        margin=dict(l=20, r=20, t=60, b=20),
-        showlegend=False,
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)'
-    )
+    with col1:
+        # Card 1: Building Type Distribution
+        with st.container():
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+           
+            
+            fig_building = go.Figure()
+            fig_building.add_trace(go.Violin(
+                x=building_type_df['primary_property_type'],
+                y=building_type_df['weather_normalized_site_eui_kbtu_ft2'],
+                name='Building Type',
+                box_visible=True,
+                meanline_visible=True,
+                line_color='#10b981',
+                fillcolor='rgba(16, 185, 129, 0.3)'
+            ))
+            
+            fig_building.update_layout(
+                title='Predictor Distribution, Building Type and Site EUI',
+                height=300,
+                margin=dict(l=20, r=20, t=40, b=20),
+                showlegend=False,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                xaxis_title="Building Type",
+                yaxis_title="Site EUI (kBtu/ft²)"
+            )
+            
+            st.plotly_chart(fig_building, use_container_width=True, config={'displayModeBar': False})
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Card 2: Year Built Distribution
+        with st.container():
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+        
+            
+            fig_year = go.Figure()
+            fig_year.add_trace(go.Violin(
+                x=decade_df['decade'],
+                y=decade_df['weather_normalized_site_eui_kbtu_ft2'],
+                name='Year Built',
+                box_visible=True,
+                meanline_visible=True,
+                line_color='#f59e0b',
+                fillcolor='rgba(245, 158, 11, 0.3)'
+            ))
+            
+            fig_year.update_layout(
+                title='Predictor Distribution, Year Built and Site EUI',
+                height=300,
+                margin=dict(l=20, r=20, t=40, b=20),
+                showlegend=False,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                xaxis_title="Decade Built",
+                yaxis_title="Site EUI (kBtu/ft²)"
+            )
+            
+            st.plotly_chart(fig_year, use_container_width=True, config={'displayModeBar': False})
+            st.markdown('</div>', unsafe_allow_html=True)
     
-    # Update axis labels
-    fig_dist.update_xaxes(title_text="Building Type", row=1, col=1)
-    fig_dist.update_xaxes(title_text="Decade Built", row=1, col=2)
-    fig_dist.update_xaxes(title_text="Borough", row=2, col=1)
-    fig_dist.update_xaxes(title_text="Occupancy Range", row=2, col=2)
-    
-    fig_dist.update_yaxes(title_text="Site EUI (kBtu/ft²)", row=1, col=1)
-    fig_dist.update_yaxes(title_text="Site EUI (kBtu/ft²)", row=1, col=2)
-    fig_dist.update_yaxes(title_text="Site EUI (kBtu/ft²)", row=2, col=1)
-    fig_dist.update_yaxes(title_text="Site EUI (kBtu/ft²)", row=2, col=2)
-    
-    # Create card container for chart
-
-    # Display chart in a container that will be styled as a card
-    with st.container():
-        st.plotly_chart(fig_dist, use_container_width=True, config={'displayModeBar': False})
-        st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        # Card 3: Borough Distribution
+        with st.container():
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            # st.markdown('<h3 class="card-title">Predictor Distribution, Borough and Site EUI</h3>', unsafe_allow_html=True)
+            
+            fig_borough = go.Figure()
+            fig_borough.add_trace(go.Violin(
+                x=df['borough'],
+                y=df['weather_normalized_site_eui_kbtu_ft2'],
+                name='Borough',
+                box_visible=True,
+                meanline_visible=True,
+                line_color='#8b5cf6',
+                fillcolor='rgba(139, 92, 246, 0.3)'
+            ))
+            
+            fig_borough.update_layout(
+                title='Predictor Distribution, Borough and Site EUI',
+                height=300,
+                margin=dict(l=20, r=20, t=40, b=20),
+                showlegend=False,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                xaxis_title="Borough",
+                yaxis_title="Site EUI (kBtu/ft²)"
+            )
+            
+            st.plotly_chart(fig_borough, use_container_width=True, config={'displayModeBar': False})
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Card 4: Occupancy Distribution
+        with st.container():
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            # st.markdown('<h3 class="card-title">Predictor Distribution, Occupancy and Site EUI</h3>', unsafe_allow_html=True)
+            
+            fig_occupancy = go.Figure()
+            fig_occupancy.add_trace(go.Violin(
+                x=occupancy_df['occupancy_range'],
+                y=occupancy_df['weather_normalized_site_eui_kbtu_ft2'],
+                name='Occupancy',
+                box_visible=True,
+                meanline_visible=True,
+                line_color='#ef4444',
+                fillcolor='rgba(239, 68, 68, 0.3)'
+            ))
+            
+            fig_occupancy.update_layout(
+                title='Predictor Distribution, Occupancy and Site EUI',
+                height=300,
+                margin=dict(l=20, r=20, t=40, b=20),
+                showlegend=False,
+                plot_bgcolor='rgba(0,0,0,0)',
+                paper_bgcolor='rgba(0,0,0,0)',
+                xaxis_title="Occupancy Range",
+                yaxis_title="Site EUI (kBtu/ft²)"
+            )
+            
+            st.plotly_chart(fig_occupancy, use_container_width=True, config={'displayModeBar': False})
+            st.markdown('</div>', unsafe_allow_html=True)
     
     st.markdown("---")
     
